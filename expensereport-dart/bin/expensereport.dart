@@ -10,5 +10,5 @@ void main(List<String> arguments) {
     Expense(ExpenseType.DINNER, 5001),
     Expense(ExpenseType.BREAKFAST, 1000),
     Expense(ExpenseType.BREAKFAST, 1001),
-  ]);
+  ], true);
 }

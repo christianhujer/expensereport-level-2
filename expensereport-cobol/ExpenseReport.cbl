@@ -6,12 +6,13 @@
             01 TOTAL PIC 9(10) VALUE 0.
             01 MEALS PIC 9(10) VALUE 0.
             01 EXPENSENAME PIC A(11).
-            01 MEALOVEREXPENSESMARKER PIC A(1).
+            01 MOEMARKER PIC A(1).
             01 WS-TABLE.
                 05 WS-EXPENSES OCCURS 5 TIMES INDEXED BY I.
                     10 WS-TYPE PIC 9(1).
                     10 WS-AMOUNT PIC 9(10).
             01 FORMATTED-INT PIC Z(04)9.
+            01 HTML-MODE PIC 9(1) VALUE 1.
 
        PROCEDURE DIVISION.
            MOVE 1 TO WS-TYPE(1)
@@ -28,31 +29,77 @@
            STOP RUN.
 
        PRINTREPORT.
-           DISPLAY 'Expenses: '.
+           IF HTML-MODE = 1
+               DISPLAY '<!DOCTYPE html>'
+               DISPLAY '<html lang="en">'
+               DISPLAY '<head>'
+               DISPLAY '<title>Expense Report</title>'
+               DISPLAY '</head>'
+               DISPLAY '<body>'
+               DISPLAY '<h1>Expense Report</h1>'
+           ELSE
+               DISPLAY 'Expenses: '
+           END-IF.
+
+           IF HTML-MODE = 1
+               DISPLAY '<table>'
+               DISPLAY '<thead>'
+               DISPLAY '<tr>'
+               DISPLAY '<th scope="col">Type</th>'
+               DISPLAY '<th scope="col">Amount</th>'
+               DISPLAY '<th scope="col">Over Limit</th>'
+               DISPLAY '</tr>'
+               DISPLAY '</thead>'
+               DISPLAY '<tbody>'
+           END-IF
            MOVE 1 TO I
            PERFORM SHOWEXPENSEDETAIL
+           IF HTML-MODE = 1
+               DISPLAY '</tbody>'
+               DISPLAY '</table>'
+           END-IF.
            MOVE MEALS TO FORMATTED-INT
-           DISPLAY "Meals: "FORMATTED-INT.
+           IF HTML-MODE = 1
+               DISPLAY "<p>Meals: "FORMATTED-INT"</p>"
+           ELSE
+               DISPLAY "Meals: "FORMATTED-INT
+           END-IF.
            MOVE TOTAL TO FORMATTED-INT
-           DISPLAY "Total: "FORMATTED-INT.
+           IF HTML-MODE = 1
+               DISPLAY "<p>Total: "FORMATTED-INT"</p>"
+           ELSE
+               DISPLAY "Total: "FORMATTED-INT
+           END-IF.
+           IF HTML-MODE = 1
+               DISPLAY '</body>'
+               DISPLAY '</html>'
+           END-IF.
 
        SHOWEXPENSEDETAIL.
            IF WS-TYPE(I) = 1 OR 2
-            ADD WS-AMOUNT(I) TO MEALS
+               ADD WS-AMOUNT(I) TO MEALS
            END-IF
            EVALUATE WS-TYPE(I)
-                    WHEN 1 MOVE 'Dinner'      TO EXPENSENAME
-                    WHEN 2 MOVE 'Breakfast'   TO EXPENSENAME
-                    WHEN 3 MOVE 'Car Rental'  TO EXPENSENAME
+               WHEN 1 MOVE 'Dinner'      TO EXPENSENAME
+               WHEN 2 MOVE 'Breakfast'   TO EXPENSENAME
+               WHEN 3 MOVE 'Car Rental'  TO EXPENSENAME
            END-EVALUATE.
            IF WS-TYPE(I) = 1 AND WS-AMOUNT(I) > 5000
            OR WS-TYPE(I) = 2 AND WS-AMOUNT(I) > 1000
-             MOVE 'X' TO MEALOVEREXPENSESMARKER
+               MOVE 'X' TO MOEMARKER
            ELSE
-             MOVE ' ' TO MEALOVEREXPENSESMARKER
+               MOVE ' ' TO MOEMARKER
            END-IF.
            MOVE WS-AMOUNT(I) TO FORMATTED-INT
-           DISPLAY EXPENSENAME FORMATTED-INT ' ' MEALOVEREXPENSESMARKER
+           IF HTML-MODE = 1
+               DISPLAY "<tr>"
+               DISPLAY "<td>"EXPENSENAME"</td>"
+               DISPLAY "<td>"FORMATTED-INT"</td>"
+               DISPLAY "<td>"MOEMARKER"</td>"
+               DISPLAY "</tr>"
+           ELSE
+               DISPLAY EXPENSENAME FORMATTED-INT ' ' MOEMARKER
+           END-IF
            ADD WS-AMOUNT(I) TO TOTAL
            IF I < 5
                ADD 1 TO I

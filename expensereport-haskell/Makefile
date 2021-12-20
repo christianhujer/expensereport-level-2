@@ -2,6 +2,7 @@ SHELL:=/bin/bash
 
 .PHONY: all
 all: expensereport
+	./expensereport
 
 %: %.hs
 	ghc $^

@@ -12,12 +12,29 @@ class Expense {
 }
 
 class ExpenseReport {
-    fun printReport(expenses: List<Expense>) {
+    fun printReport(expenses: List<Expense>, htmlMode: Boolean) {
         var total = 0
         var mealExpenses = 0
 
-        println("Expenses " + Date())
+        if (htmlMode) {
+            println("<!DOCTYPE html>")
+            println("<html>")
+            println("<head>")
+            println("<title>Expenses " + Date() + "</title>")
+            println("</head>")
+            println("<body>")
+            println("<h1>Expenses " + Date() + "</h1>")
+        } else {
+            println("Expenses " + Date())
+        }
 
+        if (htmlMode) {
+            println("<table>")
+            println("<thead>")
+            println("<tr><th scope=\"col\">Type</th><th scope=\"col\">Amount</th><th scope=\"col\">Over Limit</th></tr>")
+            println("</thead>")
+            println("<tbody>")
+        }
         for (expense in expenses) {
             if (expense.type == ExpenseType.DINNER || expense.type == ExpenseType.BREAKFAST) {
                 mealExpenses += expense.amount!!
@@ -32,12 +49,30 @@ class ExpenseReport {
 
             val mealOverExpensesMarker = if (expense.type == ExpenseType.DINNER && expense.amount!! > 5000 || expense.type == ExpenseType.BREAKFAST && expense.amount!! > 1000) "X" else " "
 
-            println(expenseName + "\t" + expense.amount + "\t" + mealOverExpensesMarker)
+            if (htmlMode) {
+                println("<tr><td>" + expenseName + "</td><td>" + expense.amount + "</td><td>" + mealOverExpensesMarker + "</td></tr>")
+            } else {
+                println(expenseName + "\t" + expense.amount + "\t" + mealOverExpensesMarker)
+            }
 
             total += expense.amount!!
         }
+        if (htmlMode) {
+            println("</tbody>")
+            println("</table>")
+        }
 
-        println("Meal expenses: $mealExpenses")
-        println("Total expenses: $total")
+        if (htmlMode) {
+            println("<p>Meal expenses: " + mealExpenses + "</p>")
+            println("<p>Total expenses: " + mealExpenses + "</p>")
+        } else {
+            println("Meal expenses: $mealExpenses")
+            println("Total expenses: $total")
+        }
+
+        if (htmlMode) {
+            println("</body>")
+            println("</html>")
+        }
     }
 }

@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -12,7 +13,7 @@ struct Expense {
     int amount;
 } Expense;
 
-void printReport(struct Expense expenses[], size_t numExpenses) {
+void printReport(bool htmlMode, struct Expense expenses[], size_t numExpenses) {
     int total = 0;
     int mealExpenses = 0;
 
@@ -21,8 +22,25 @@ void printReport(struct Expense expenses[], size_t numExpenses) {
     if (time(&now) == -1)
         return;
 
-    printf("Expenses %s:\n", ctime(&now));
+    if (htmlMode) {
+        printf("<!DOCTYPE html>\n");
+        printf("<html lang=\"en\">\n");
+        printf("<head>\n");
+        printf("<title>Expense Report: %s</title>\n", ctime(&now));
+        printf("</head>\n");
+        printf("<body>\n");
+        printf("<h1>Expense Report: %s</h1>\n", ctime(&now));
+    } else {
+        printf("Expenses %s:\n", ctime(&now));
+    }
 
+    if (htmlMode) {
+        printf("<table>\n");
+        printf("<thead>\n");
+        printf("<tr><th scope=\"col\">Type</th><th scope=\"col\">Amount</th><th scope=\"col\">Over Limit</th></tr>\n");
+        printf("</thead>\n");
+        printf("<tbody>\n");
+    }
     for (i = 0; i < numExpenses; i++) {
         struct Expense expense = expenses[i];
 
@@ -45,12 +63,30 @@ void printReport(struct Expense expenses[], size_t numExpenses) {
 
         char *mealOverExpensesMarker = ((expense.type == DINNER && expense.amount > 5000) || (expense.type == BREAKFAST && expense.amount > 1000)) ? "X" : " ";
 
-        printf("%s\t%d\t%s\n", expenseName, expense.amount, mealOverExpensesMarker);
+        if (htmlMode) {
+            printf("<tr><td>%s</td><td>%d</td><td>%s</td></tr>\n", expenseName, expense.amount, mealOverExpensesMarker);
+        } else {
+            printf("%s\t%d\t%s\n", expenseName, expense.amount, mealOverExpensesMarker);
+        }
         total += expense.amount;
     }
+    if (htmlMode) {
+        printf("</tbody>\n");
+        printf("</table>\n");
+    }
 
-    printf("Meal expenses: %d\n", mealExpenses);
-    printf("Total expenses: %d\n", total);
+    if (htmlMode) {
+        printf("<p>Meal expenses: %d</p>\n", mealExpenses);
+        printf("<p>Total expenses: %d</p>\n", total);
+    } else {
+        printf("Meal expenses: %d\n", mealExpenses);
+        printf("Total expenses: %d\n", total);
+    }
+
+    if (htmlMode) {
+        printf("</body>\n");
+        printf("</html>\n");
+    }
 }
 
 int main(void) {
@@ -60,6 +96,6 @@ int main(void) {
     expenses[2].type = BREAKFAST; expenses[2].amount = 1000;
     expenses[3].type = BREAKFAST; expenses[3].amount = 1001;
     expenses[4].type = CAR_RENTAL; expenses[4].amount = 4;
-    printReport(expenses, 5);
+    printReport(true, expenses, 5);
     return 0;
 }

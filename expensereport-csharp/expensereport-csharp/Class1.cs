@@ -16,13 +16,34 @@ namespace expensereport_csharp
 
     public class ExpenseReport
     {
-        public void PrintReport(List<Expense> expenses)
+        public void PrintReport(List<Expense> expenses, bool htmlMode)
         {
             int total = 0;
             int mealExpenses = 0;
 
-            Console.WriteLine("Expenses " + DateTime.Now);
-            
+            if (htmlMode)
+            {
+                Console.WriteLine("<!DOCTYPE html>");
+                Console.WriteLine("<html lang=\"en\">");
+                Console.WriteLine("<head>");
+                Console.WriteLine("<title>Expenses " + DateTime.Now + "</title>");
+                Console.WriteLine("</head>");
+                Console.WriteLine("<body>");
+                Console.WriteLine("<h1>Expenses " + DateTime.Now + "</h1>");
+            }
+            else
+            {
+                Console.WriteLine("Expenses " + DateTime.Now);
+            }
+
+            if (htmlMode)
+            {
+                Console.WriteLine("<table>");
+                Console.WriteLine("<thead>");
+                Console.WriteLine("<tr><th scope=\"col\">Type</th><th scope=\"col\">Amount</th><th scope=\"col\">Over Limit</th></tr>");
+                Console.WriteLine("</thead>");
+                Console.WriteLine("<tbody>");
+            }
             foreach (Expense expense in expenses)
             {
                 if (expense.type == ExpenseType.DINNER || expense.type == ExpenseType.BREAKFAST)
@@ -50,13 +71,39 @@ namespace expensereport_csharp
                         ? "X"
                         : " ";
 
-                Console.WriteLine(expenseName + "\t" + expense.amount + "\t" + mealOverExpensesMarker);
+                if (htmlMode)
+                {
+                    Console.WriteLine("<tr><td>" + expenseName + "</td><td>" + expense.amount + "</td><td>" + mealOverExpensesMarker + "</td></tr>");
+                }
+                else
+                {
+                    Console.WriteLine(expenseName + "\t" + expense.amount + "\t" + mealOverExpensesMarker);
+                }
 
                 total += expense.amount;
             }
+            if (htmlMode)
+            {
+                Console.WriteLine("</tbody>");
+                Console.WriteLine("</table>");
+            }
 
-            Console.WriteLine("Meal expenses: " + mealExpenses);
-            Console.WriteLine("Total expenses: " + total);
+            if (htmlMode)
+            {
+                Console.WriteLine("<p>Meal expenses: " + mealExpenses + "</p>");
+                Console.WriteLine("<p>Total expenses: " + total + "</p>");
+            }
+            else
+            {
+                Console.WriteLine("Meal expenses: " + mealExpenses);
+                Console.WriteLine("Total expenses: " + total);
+            }
+
+            if (htmlMode)
+            {
+                Console.WriteLine("</body>");
+                Console.WriteLine("</html>");
+            }
         }
     }
 }

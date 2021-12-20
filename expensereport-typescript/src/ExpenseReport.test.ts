@@ -7,8 +7,12 @@ describe(`ExpenseReport`, () => {
             interceptedOutput += output
             return true;
         })
-        printReport([
-          new Expense("dinner", 5001)
+        printReport(true, [
+          new Expense("breakfast", 1000),
+          new Expense("breakfast", 1001),
+          new Expense("dinner", 5000),
+          new Expense("dinner", 5001),
+          new Expense("car-rental", 4),
         ])
         expect(interceptedOutput).toEqual("")
     })

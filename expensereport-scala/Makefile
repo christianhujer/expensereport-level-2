@@ -1,5 +1,6 @@
 .PHONY: all
 all: test
+	sbt run
 
 .PHONY: test
 test:

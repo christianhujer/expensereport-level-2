@@ -16,11 +16,32 @@ class Expense {
 }
 
 class ExpenseReport {
-    function print_report($expenses) {
+    public function print_report($htmlMode, $expenses) {
         $mealExpenses = 0;
         $total = 0;
         $date = date("Y-m-d h:i:sa");
-        print("Expense Report {$date}\n");
+        if ($htmlMode) {
+            ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Expense Report <?= $date?></title>
+</head>
+<body>
+<h1>Expense Report <?= $date?></h1>
+<?php
+        } else {
+            print("Expense Report {$date}\n");
+        }
+        if ($htmlMode) {
+            ?>
+<table>
+<thead>
+<tr><th scope="col">Type</th><th scope="col">Amount</th><th scope="col">Over Limit</th></tr>
+</thead>
+<tbody>
+<?php
+        }
         foreach ($expenses as $expense) {
             if ($expense->type == ExpenseType::DINNER || $expense->type == ExpenseType::BREAKFAST) {
                 $mealExpenses += $expense->amount;
@@ -33,10 +54,40 @@ class ExpenseReport {
             }
 
             $mealOverExpensesMarker = $expense->type == ExpenseType::DINNER && $expense->amount > 5000 || $expense->type == ExpenseType::BREAKFAST && $expense->amount > 1000 ? "X" : " ";
-            print($expenseName . "\t" . $expense->amount . "\t" . $mealOverExpensesMarker . "\n");
+            if ($htmlMode) {
+                ?>
+<tr><td><?= $expenseName ?></td><td><?= $expense->amount ?></td><td><?= $mealOverExpensesMarker ?></td></tr>
+<?php
+            } else {
+                print($expenseName . "\t" . $expense->amount . "\t" . $mealOverExpensesMarker . "\n");
+            }
             $total += $expense->amount;
         }
-        print("Meal Expenses: " . $mealExpenses . "\n");
-        print("Total Expenses: " . $total . "\n");
+        if ($htmlMode) { ?>
+</tbody>
+</table>
+<?php }
+
+        if ($htmlMode) {
+            ?>
+<p>Meal Expenses: <?= $mealExpenses ?></p>
+<p>Total Expenses: <?= $total ?></p>
+<?php } else {
+            print("Meal Expenses: " . $mealExpenses . "\n");
+            print("Total Expenses: " . $total . "\n");
+        }
+
+        if ($htmlMode) { ?>
+</body>
+</html>
+<?php }
     }
 }
+
+ExpenseReport::print_report(true, [
+    new Expense(ExpenseType::BREAKFAST, 1000),
+    new Expense(ExpenseType::BREAKFAST, 1001),
+    new Expense(ExpenseType::DINNER, 5000),
+    new Expense(ExpenseType::DINNER, 5001),
+    new Expense(ExpenseType::CAR_RENTAL, 4),
+]);

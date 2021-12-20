@@ -6,6 +6,6 @@ if __name__ == '__main__':
     expense = Expense()
     expense.type = ExpenseType.DINNER
     expense.amount = 7500
-    ExpenseReport().print_report([expense])
+    ExpenseReport().print_report([expense], True)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
